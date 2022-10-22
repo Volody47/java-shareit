@@ -2,9 +2,7 @@ package ru.practicum.shareit.user;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserServiceImpl;
 
@@ -24,7 +22,28 @@ public class UserController {
 
     @GetMapping
     public List<User> findAll() {
-        log.debug("Users quantity: {}", userService.findAllUsers().size());
         return userService.findAllUsers();
     }
+
+    @PostMapping
+    public User createUser(@RequestBody User user) {
+        return userService.createUser(user);
+    }
+
+    @PatchMapping(value = "/{id}")
+    public User updateUser(@RequestBody User user, @PathVariable int id) {
+        user.setId(id);
+        return userService.updateUser(user);
+    }
+
+    @GetMapping(value = "/{id}")
+    public User getUser(@PathVariable int id) {
+        return userService.getUser(id);
+    }
+
+    @DeleteMapping(value = "/{userId}")
+    public void removeUser(@PathVariable Integer userId) {
+        userService.removeUser(userId);
+    }
+
 }

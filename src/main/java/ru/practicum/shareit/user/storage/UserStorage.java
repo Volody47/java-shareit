@@ -12,7 +12,7 @@ public interface UserStorage {
 
     User getUser(int id);
 
-    void removeUser(User user);
+    void removeUser(Integer userId);
 
     List<User> findAllUsers();
 }
