@@ -2,6 +2,7 @@ package ru.practicum.shareit.item.storage;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
+import ru.practicum.shareit.exceptions.InvalidItemAvailabilityException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.utils.Validator;
@@ -23,6 +24,10 @@ public class InMemoryItemStorageImpl implements ItemStorage {
 
     @Override
     public Item createItem(Item item, User user) {
+        if (!item.isAvailable() && getItem(item.getId()) == null) {
+            log.error("Item Availability can't false or empty");
+            throw new InvalidItemAvailabilityException("Field 'available' should be 'true' and can't be empty.");
+        }
         Validator.validateItem(item);
         item.setId(generateId());
         item.setOwner(user);
@@ -45,6 +50,10 @@ public class InMemoryItemStorageImpl implements ItemStorage {
                 } else if (item.getDescription() == null) {
                     item.setDescription(items.get(itemId).getDescription());
                     item.setAvailable(items.get(itemId).isAvailable());
+                }
+                if (!item.isAvailable() && getItem(item.getId()) == null) {
+                    log.error("Item Availability can't false or empty");
+                    throw new InvalidItemAvailabilityException("Field 'available' should be 'true' and can't be empty.");
                 }
                 Validator.validateItem(item);
                 item.setOwner(user);

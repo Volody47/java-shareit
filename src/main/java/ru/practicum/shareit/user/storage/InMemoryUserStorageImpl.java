@@ -2,6 +2,7 @@ package ru.practicum.shareit.user.storage;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
+import ru.practicum.shareit.exceptions.DuplicateEmailException;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.utils.Validator;
 
@@ -23,6 +24,10 @@ public class InMemoryUserStorageImpl implements UserStorage {
 
     @Override
     public User createUser(User user) {
+        if (findDuplicateEmail(user)) {
+            log.error("Email: '{}' is already taken.", user.getEmail());
+            throw new DuplicateEmailException("Email: " + user.getEmail() + " is already taken.");
+        }
         Validator.validateUser(user);
         user.setId(generateId());
         users.put(user.getId(), user);
@@ -39,6 +44,10 @@ public class InMemoryUserStorageImpl implements UserStorage {
                     user.setName(users.get(userId).getName());
                 } else if (user.getEmail() == null) {
                     user.setEmail(users.get(userId).getEmail());
+                }
+                if (findDuplicateEmail(user)) {
+                    log.error("Email: '{}' is already taken.", user.getEmail());
+                    throw new DuplicateEmailException("Email: " + user.getEmail() + " is already taken.");
                 }
                 Validator.validateUser(user);
                 users.put(user.getId(), user);
@@ -74,5 +83,15 @@ public class InMemoryUserStorageImpl implements UserStorage {
         }
         log.debug("Users quantity: {}", listOfUsers.size());
         return listOfUsers;
+    }
+
+    private boolean findDuplicateEmail(User user) {
+            List<User> allUsers = findAllUsers();
+            for (User existentUser :  allUsers) {
+                if (existentUser.getEmail().equals(user.getEmail()) && existentUser.getId() != user.getId()) {
+                    return true;
+                }
+            }
+        return false;
     }
 }
