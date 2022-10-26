@@ -15,7 +15,6 @@ import java.util.List;
 @Component
 @Slf4j
 public class Validator {
-    //private static UserService userStorage;
     private static InMemoryUserStorageImpl userStorage;
     private static InMemoryItemStorageImpl itemStorage;
 
@@ -27,7 +26,7 @@ public class Validator {
     }
 
     public static void validateUser(@RequestBody User user) {
-        if(user.getEmail() == null || user.getEmail().isBlank() || !user.getEmail().contains("@")) {
+        if (user.getEmail() == null || user.getEmail().isBlank() || !user.getEmail().contains("@")) {
             log.error("Email: '{}' can't be empty and should contains @", user.getEmail());
             throw new InvalidEmailException("Email can't be empty and should contains @.");
         }  else if (findDuplicateEmail(user)) {
