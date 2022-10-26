@@ -21,8 +21,8 @@ public class Validator {
 
     @Autowired
     public Validator(InMemoryUserStorageImpl userStorage, InMemoryItemStorageImpl itemStorage) {
-        this.userStorage = userStorage;
-        this.itemStorage = itemStorage;
+        Validator.userStorage = userStorage;
+        Validator.itemStorage = itemStorage;
     }
 
     public static void validateUser(@RequestBody User user) {
