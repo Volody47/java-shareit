@@ -4,12 +4,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.utils.Validator;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import static ru.practicum.shareit.utils.Validator.*;
 
 @Repository
 @Slf4j
@@ -23,7 +23,7 @@ public class InMemoryItemStorageImpl implements ItemStorage {
 
     @Override
     public Item createItem(Item item, User user) {
-        validateItem(item);
+        Validator.validateItem(item);
         item.setId(generateId());
         item.setOwner(user);
         items.put(item.getId(), item);
@@ -46,7 +46,7 @@ public class InMemoryItemStorageImpl implements ItemStorage {
                     item.setDescription(items.get(itemId).getDescription());
                     item.setAvailable(items.get(itemId).isAvailable());
                 }
-                validateItem(item);
+                Validator.validateItem(item);
                 item.setOwner(user);
                 items.put(item.getId(), item);
                 updatedItem = items.get(item.getId());

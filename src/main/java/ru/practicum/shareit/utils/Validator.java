@@ -19,7 +19,6 @@ public class Validator {
     private static InMemoryItemStorageImpl itemStorage;
 
 
-    @Autowired
     public Validator(InMemoryUserStorageImpl userStorage, InMemoryItemStorageImpl itemStorage) {
         Validator.userStorage = userStorage;
         Validator.itemStorage = itemStorage;

@@ -3,12 +3,12 @@ package ru.practicum.shareit.user.storage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.utils.Validator;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import static ru.practicum.shareit.utils.Validator.validateUser;
 
 @Repository
 @Slf4j
@@ -23,7 +23,7 @@ public class InMemoryUserStorageImpl implements UserStorage {
 
     @Override
     public User createUser(User user) {
-        validateUser(user);
+        Validator.validateUser(user);
         user.setId(generateId());
         users.put(user.getId(), user);
         log.debug("New user created with id={}", user.getId());
@@ -40,7 +40,7 @@ public class InMemoryUserStorageImpl implements UserStorage {
                 } else if (user.getEmail() == null) {
                     user.setEmail(users.get(userId).getEmail());
                 }
-                validateUser(user);
+                Validator.validateUser(user);
                 users.put(user.getId(), user);
                 updatedUser = users.get(user.getId());
                 log.debug("User with id={} updated", user.getId());
