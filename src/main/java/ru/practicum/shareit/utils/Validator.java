@@ -3,16 +3,13 @@ package ru.practicum.shareit.utils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
-import ru.practicum.shareit.exceptions.DuplicateEmailException;
-import ru.practicum.shareit.exceptions.InvalidEmailException;
-import ru.practicum.shareit.exceptions.InvalidUserNameException;
+import ru.practicum.shareit.exceptions.*;
+import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.storage.InMemoryItemStorageImpl;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.service.UserService;
 import ru.practicum.shareit.user.storage.InMemoryUserStorageImpl;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @Component
@@ -20,10 +17,13 @@ import java.util.List;
 public class Validator {
     //private static UserService userStorage;
     private static InMemoryUserStorageImpl userStorage;
+    private static InMemoryItemStorageImpl itemStorage;
+
 
     @Autowired
-    public Validator(InMemoryUserStorageImpl userStorage) {
+    public Validator(InMemoryUserStorageImpl userStorage, InMemoryItemStorageImpl itemStorage) {
         this.userStorage = userStorage;
+        this.itemStorage = itemStorage;
     }
 
     public static void validateUser(@RequestBody User user) {
@@ -51,5 +51,18 @@ public class Validator {
             }
         }
         return false;
+    }
+
+    public static void validateItem(@RequestBody Item item) {
+        if (item.getName() == null || item.getName().isBlank()) {
+            log.error("ItemName: '{}' can't be empty", item.getName());
+            throw new InvalidItemNameException("ItemName can't be empty.");
+        } else if (item.getDescription() == null || item.getDescription().isBlank()) {
+            log.error("ItemDescription: '{}' can't be empty", item.getDescription());
+            throw new InvalidItemDescriptionException("ItemDescription can't be empty.");
+        } else if (!item.isAvailable() && itemStorage.getItem(item.getId()) == null) {
+            log.error("Item Availability can't false or empty");
+            throw new InvalidItemAvailabilityException("Field 'available' should be 'true' and can't be empty.");
+        }
     }
 }
