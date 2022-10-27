@@ -15,4 +15,6 @@ public interface UserStorage {
     void removeUser(Integer userId);
 
     List<User> findAllUsers();
+
+    boolean findDuplicateEmail(User user);
 }

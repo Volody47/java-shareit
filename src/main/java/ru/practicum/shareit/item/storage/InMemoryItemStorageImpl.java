@@ -3,6 +3,8 @@ package ru.practicum.shareit.item.storage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.exceptions.InvalidItemAvailabilityException;
+import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.utils.Validator;
@@ -23,7 +25,7 @@ public class InMemoryItemStorageImpl implements ItemStorage {
     }
 
     @Override
-    public Item createItem(Item item, User user) {
+    public ItemDto createItem(Item item, User user) {
         if (!item.isAvailable() && getItem(item.getId()) == null) {
             log.error("Item Availability can't false or empty");
             throw new InvalidItemAvailabilityException("Field 'available' should be 'true' and can't be empty.");
@@ -33,11 +35,13 @@ public class InMemoryItemStorageImpl implements ItemStorage {
         item.setOwner(user);
         items.put(item.getId(), item);
         log.debug("New item created with id={}", item.getId());
-        return item;
+        ItemMapper itemMapper = new ItemMapper();
+        ItemDto itemDto = itemMapper.mapItemToItemDto(item);
+        return itemDto;
     }
 
     @Override
-    public Item updateItem(Item item, User user) {
+    public ItemDto updateItem(Item item, User user) {
         Item updatedItem = null;
         for (int itemId : items.keySet()) {
             if (itemId == item.getId()) {
@@ -62,18 +66,25 @@ public class InMemoryItemStorageImpl implements ItemStorage {
                 log.debug("Item with id={} updated", item.getId());
             }
         }
-        return updatedItem;
+        ItemMapper itemMapper = new ItemMapper();
+        ItemDto itemDto = itemMapper.mapItemToItemDto(updatedItem);
+        return itemDto;
     }
 
     @Override
-    public Item getItem(int id) {
+    public ItemDto getItem(int id) {
         Item item = null;
         for (Integer itemId : items.keySet()) {
             if (itemId == id) {
                 item = items.get(id);
             }
         }
-        return item;
+        if (item == null) {
+            return null;
+        }
+        ItemMapper itemMapper = new ItemMapper();
+        ItemDto itemDto = itemMapper.mapItemToItemDto(item);
+        return itemDto;
     }
 
     @Override
@@ -83,26 +94,42 @@ public class InMemoryItemStorageImpl implements ItemStorage {
     }
 
     @Override
-    public List<Item> findAllItems(User user) {
-        ArrayList<Item> listOfItems = new ArrayList<>();
+    public List<ItemDto> findAllItems(User user) {
+        ArrayList<ItemDto> listOfItems = new ArrayList<>();
         for (Item item : items.values()) {
-            if (item.getOwner().getId() == user.getId())
-            listOfItems.add(item);
+            if (item.getOwner().getId() == user.getId()) {
+                ItemMapper itemMapper = new ItemMapper();
+                ItemDto itemDto = itemMapper.mapItemToItemDto(item);
+                listOfItems.add(itemDto);
+            }
         }
         return listOfItems;
     }
 
     @Override
-    public List<Item> findItemsBaseOnRequest(String text) {
-        ArrayList<Item> listOfItems = new ArrayList<>();
+    public List<ItemDto> findItemsBaseOnRequest(String text) {
+        ArrayList<ItemDto> listOfItems = new ArrayList<>();
         for (Item item : items.values()) {
             String nameInLowerCase = item.getName().toLowerCase();
             String descriptionInLowerCase = item.getDescription().toLowerCase();
             if (item.isAvailable() &&
                     (nameInLowerCase.contains(text) || descriptionInLowerCase.contains(text))) {
-                listOfItems.add(item);
+                ItemMapper itemMapper = new ItemMapper();
+                ItemDto itemDto = itemMapper.mapItemToItemDto(item);
+                listOfItems.add(itemDto);
             }
         }
         return listOfItems;
+    }
+
+    @Override
+    public User findItemOwner(Item item) {
+        User user = null;
+        for (Integer itemId : items.keySet()) {
+            if (itemId == item.getId()) {
+                user = items.get(itemId).getOwner();
+            }
+        }
+        return user;
     }
 }

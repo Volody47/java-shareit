@@ -85,7 +85,8 @@ public class InMemoryUserStorageImpl implements UserStorage {
         return listOfUsers;
     }
 
-    private boolean findDuplicateEmail(User user) {
+    @Override
+    public boolean findDuplicateEmail(User user) {
             List<User> allUsers = findAllUsers();
             for (User existentUser :  allUsers) {
                 if (existentUser.getEmail().equals(user.getEmail()) && existentUser.getId() != user.getId()) {

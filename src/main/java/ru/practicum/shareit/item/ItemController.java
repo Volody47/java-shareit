@@ -3,6 +3,7 @@ package ru.practicum.shareit.item;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemServiceImpl;
 import ru.practicum.shareit.user.model.User;
@@ -26,20 +27,20 @@ public class ItemController {
     }
 
     @GetMapping
-    public List<Item> findAll(@RequestHeader(value = "X-Sharer-User-Id") int ownerId) {
+    public List<ItemDto> findAll(@RequestHeader(value = "X-Sharer-User-Id") int ownerId) {
         User user = userService.getUser(ownerId);
         return itemService.findAllItems(user);
     }
 
     @PostMapping
-    public Item createItem(@RequestBody Item item,
-                           @RequestHeader(value = "X-Sharer-User-Id") int ownerId) {
+    public ItemDto createItem(@RequestBody Item item,
+                              @RequestHeader(value = "X-Sharer-User-Id") int ownerId) {
         User user = userService.getUser(ownerId);
         return itemService.createItem(item, user);
     }
 
     @PatchMapping(value = "/{itemId}")
-    public Item updateItem(@RequestBody Item item,
+    public ItemDto updateItem(@RequestBody Item item,
                            @RequestHeader(value = "X-Sharer-User-Id") int ownerId,
                            @PathVariable int itemId) {
         User user = userService.getUser(ownerId);
@@ -48,14 +49,14 @@ public class ItemController {
     }
 
     @GetMapping(value = "/{itemId}")
-    public Item getItem(@RequestHeader(value = "X-Sharer-User-Id") int ownerId,
+    public ItemDto getItem(@RequestHeader(value = "X-Sharer-User-Id") int ownerId,
                         @PathVariable int itemId) {
         User user = userService.getUser(ownerId);
         return itemService.getItem(itemId, user);
     }
 
     @GetMapping(value = "/search")
-    public List<Item> findItemsBaseOnRequest(@RequestHeader(value = "X-Sharer-User-Id") int ownerId,
+    public List<ItemDto> findItemsBaseOnRequest(@RequestHeader(value = "X-Sharer-User-Id") int ownerId,
                         @RequestParam(value = "text", required = false) String text) {
         User user = userService.getUser(ownerId);
         return itemService.findItemsBaseOnRequest(text);
