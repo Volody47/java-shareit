@@ -35,7 +35,7 @@ class UserControllerTest {
     void validateEmail() {
         User user = new User();
         user.setEmail("");
-        assertThrows(InvalidEmailException.class, () -> validateUser(user) );
+        assertThrows(InvalidEmailException.class, () -> validateUser(user));
     }
 
     @Test
