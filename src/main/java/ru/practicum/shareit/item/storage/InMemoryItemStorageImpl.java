@@ -76,16 +76,12 @@ public class InMemoryItemStorageImpl implements ItemStorage {
 
     @Override
     public ItemDto getItem(int id) {
-        Item item = null;
-        for (Integer itemId : items.keySet()) {
-            if (itemId == id) {
-                item = items.get(id);
-            }
-        }
-        if (item == null) {
+        Item item = items.get(id);
+        if (item != null) {
+            return itemMapper.mapToItemDto(item);
+        } else {
             return null;
         }
-        return itemMapper.mapToItemDto(item);
     }
 
     @Override
