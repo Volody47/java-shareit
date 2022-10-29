@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item.storage;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.exceptions.InvalidItemAvailabilityException;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -19,6 +20,12 @@ import java.util.List;
 public class InMemoryItemStorageImpl implements ItemStorage {
     private HashMap<Integer, Item> items = new HashMap<>();
     private Integer identificator = 0;
+    private final ItemMapper itemMapper;
+
+    @Autowired
+    public InMemoryItemStorageImpl(ItemMapper itemMapper) {
+        this.itemMapper = itemMapper;
+    }
 
     public int generateId() {
         return ++identificator;
@@ -35,9 +42,7 @@ public class InMemoryItemStorageImpl implements ItemStorage {
         item.setOwner(user);
         items.put(item.getId(), item);
         log.debug("New item created with id={}", item.getId());
-        ItemMapper itemMapper = new ItemMapper();
-        ItemDto itemDto = itemMapper.mapItemToItemDto(item);
-        return itemDto;
+        return itemMapper.mapItemToItemDto(item);
     }
 
     @Override
@@ -66,9 +71,7 @@ public class InMemoryItemStorageImpl implements ItemStorage {
                 log.debug("Item with id={} updated", item.getId());
             }
         }
-        ItemMapper itemMapper = new ItemMapper();
-        ItemDto itemDto = itemMapper.mapItemToItemDto(updatedItem);
-        return itemDto;
+        return itemMapper.mapItemToItemDto(updatedItem);
     }
 
     @Override
@@ -82,9 +85,7 @@ public class InMemoryItemStorageImpl implements ItemStorage {
         if (item == null) {
             return null;
         }
-        ItemMapper itemMapper = new ItemMapper();
-        ItemDto itemDto = itemMapper.mapItemToItemDto(item);
-        return itemDto;
+        return itemMapper.mapItemToItemDto(item);
     }
 
     @Override
@@ -98,7 +99,6 @@ public class InMemoryItemStorageImpl implements ItemStorage {
         ArrayList<ItemDto> listOfItems = new ArrayList<>();
         for (Item item : items.values()) {
             if (item.getOwner().getId() == user.getId()) {
-                ItemMapper itemMapper = new ItemMapper();
                 ItemDto itemDto = itemMapper.mapItemToItemDto(item);
                 listOfItems.add(itemDto);
             }
@@ -114,7 +114,6 @@ public class InMemoryItemStorageImpl implements ItemStorage {
             String descriptionInLowerCase = item.getDescription().toLowerCase();
             if (item.isAvailable() &&
                     (nameInLowerCase.contains(text) || descriptionInLowerCase.contains(text))) {
-                ItemMapper itemMapper = new ItemMapper();
                 ItemDto itemDto = itemMapper.mapItemToItemDto(item);
                 listOfItems.add(itemDto);
             }
