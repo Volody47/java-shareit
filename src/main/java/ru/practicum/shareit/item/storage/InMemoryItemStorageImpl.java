@@ -42,7 +42,7 @@ public class InMemoryItemStorageImpl implements ItemStorage {
         item.setOwner(user);
         items.put(item.getId(), item);
         log.debug("New item created with id={}", item.getId());
-        return itemMapper.mapItemToItemDto(item);
+        return itemMapper.mapToItemDto(item);
     }
 
     @Override
@@ -71,7 +71,7 @@ public class InMemoryItemStorageImpl implements ItemStorage {
                 log.debug("Item with id={} updated", item.getId());
             }
         }
-        return itemMapper.mapItemToItemDto(updatedItem);
+        return itemMapper.mapToItemDto(updatedItem);
     }
 
     @Override
@@ -85,7 +85,7 @@ public class InMemoryItemStorageImpl implements ItemStorage {
         if (item == null) {
             return null;
         }
-        return itemMapper.mapItemToItemDto(item);
+        return itemMapper.mapToItemDto(item);
     }
 
     @Override
@@ -99,7 +99,7 @@ public class InMemoryItemStorageImpl implements ItemStorage {
         ArrayList<ItemDto> listOfItems = new ArrayList<>();
         for (Item item : items.values()) {
             if (item.getOwner().getId() == user.getId()) {
-                ItemDto itemDto = itemMapper.mapItemToItemDto(item);
+                ItemDto itemDto = itemMapper.mapToItemDto(item);
                 listOfItems.add(itemDto);
             }
         }
@@ -114,7 +114,7 @@ public class InMemoryItemStorageImpl implements ItemStorage {
             String descriptionInLowerCase = item.getDescription().toLowerCase();
             if (item.isAvailable() &&
                     (nameInLowerCase.contains(text) || descriptionInLowerCase.contains(text))) {
-                ItemDto itemDto = itemMapper.mapItemToItemDto(item);
+                ItemDto itemDto = itemMapper.mapToItemDto(item);
                 listOfItems.add(itemDto);
             }
         }

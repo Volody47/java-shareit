@@ -8,6 +8,7 @@ import ru.practicum.shareit.user.model.User;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(of = "id")
+@Builder
 public class Item {
     private int id;
     private String name;
