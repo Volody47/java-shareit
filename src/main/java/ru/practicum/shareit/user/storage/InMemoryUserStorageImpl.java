@@ -60,13 +60,12 @@ public class InMemoryUserStorageImpl implements UserStorage {
 
     @Override
     public User getUser(int id) {
-        User user = null;
-        for (Integer userId : users.keySet()) {
-            if (userId == id) {
-                user = users.get(id);
-            }
+        User user = users.get(id);
+        if (user != null) {
+            return user;
+        } else {
+            return null;
         }
-        return user;
     }
 
     @Override
