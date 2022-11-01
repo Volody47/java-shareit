@@ -24,11 +24,11 @@ public class InMemoryUserStorageImpl implements UserStorage {
 
     @Override
     public User createUser(User user) {
+        Validator.validateUser(user);
         if (findDuplicateEmail(user)) {
             log.error("Email: '{}' is already taken.", user.getEmail());
             throw new DuplicateEmailException("Email: " + user.getEmail() + " is already taken.");
         }
-        Validator.validateUser(user);
         user.setId(generateId());
         users.put(user.getId(), user);
         log.debug("New user created with id={}", user.getId());
@@ -37,25 +37,24 @@ public class InMemoryUserStorageImpl implements UserStorage {
 
     @Override
     public User updateUser(User user) {
-        User updatedUser = null;
-        for (Integer userId : users.keySet()) {
-            if (userId.equals(user.getId())) {
-                if (user.getName() == null) {
-                    user.setName(users.get(userId).getName());
-                } else if (user.getEmail() == null) {
-                    user.setEmail(users.get(userId).getEmail());
-                }
-                if (findDuplicateEmail(user)) {
-                    log.error("Email: '{}' is already taken.", user.getEmail());
-                    throw new DuplicateEmailException("Email: " + user.getEmail() + " is already taken.");
-                }
-                Validator.validateUser(user);
-                users.put(user.getId(), user);
-                updatedUser = users.get(user.getId());
-                log.debug("User with id={} updated", user.getId());
+        User updatedUser = users.get(user.getId());
+        if (updatedUser != null) {
+            if (user.getName() == null) {
+                user.setName(updatedUser.getName());
+            } else if (user.getEmail() == null) {
+                user.setEmail(updatedUser.getEmail());
             }
+            if (findDuplicateEmail(user)) {
+                log.error("Email: '{}' is already taken.", user.getEmail());
+                throw new DuplicateEmailException("Email: " + user.getEmail() + " is already taken.");
+            }
+            Validator.validateUser(user);
+            users.put(user.getId(), user);
+            log.debug("User with id={} updated", user.getId());
+            return user;
+        } else {
+            return null;
         }
-        return updatedUser;
     }
 
     @Override

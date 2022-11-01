@@ -8,6 +8,7 @@ import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.storage.InMemoryUserStorageImpl;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Slf4j

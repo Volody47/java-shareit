@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.exceptions.InvalidItemAvailabilityException;
+import ru.practicum.shareit.exceptions.ItemNotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
@@ -13,6 +14,9 @@ import ru.practicum.shareit.utils.Validator;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 @Repository
@@ -47,31 +51,29 @@ public class InMemoryItemStorageImpl implements ItemStorage {
 
     @Override
     public ItemDto updateItem(Item item, User user) {
-        Item updatedItem = null;
-        for (int itemId : items.keySet()) {
-            if (itemId == item.getId()) {
-                if (item.getName() == null && item.getDescription() == null) {
-                    item.setName(items.get(itemId).getName());
-                    item.setDescription(items.get(itemId).getDescription());
-                } else if (item.getName() == null) {
-                    item.setName(items.get(itemId).getName());
-                    item.setAvailable(items.get(itemId).isAvailable());
-                } else if (item.getDescription() == null) {
-                    item.setDescription(items.get(itemId).getDescription());
-                    item.setAvailable(items.get(itemId).isAvailable());
-                }
-                if (!item.isAvailable() && getItem(item.getId()) == null) {
-                    log.error("Item Availability can't false or empty");
-                    throw new InvalidItemAvailabilityException("Field 'available' should be 'true' and can't be empty.");
-                }
-                Validator.validateItem(item);
-                item.setOwner(user);
-                items.put(item.getId(), item);
-                updatedItem = items.get(item.getId());
-                log.debug("Item with id={} updated", item.getId());
+        Item updatedItem = items.get(item.getId());
+        if (updatedItem != null) {
+            if (item.getName() == null && item.getDescription() == null) {
+                item.setName(updatedItem.getName());
+                item.setDescription(updatedItem.getDescription());
+            } else if (item.getName() == null) {
+                item.setName(updatedItem.getName());
+                item.setAvailable(updatedItem.isAvailable());
+            } else if (item.getDescription() == null) {
+                item.setDescription(updatedItem.getDescription());
+                item.setAvailable(updatedItem.isAvailable());
             }
+            Validator.validateItem(item);
+            item.setOwner(user);
+            if (!item.isAvailable() && getItem(item.getId()) == null) {
+                log.error("Item Availability can't false or empty");
+                throw new InvalidItemAvailabilityException("Field 'available' should be 'true' and can't be empty.");
+            }
+            items.put(item.getId(), item);
+            return itemMapper.mapToItemDto(item);
+        } else {
+            return null;
         }
-        return itemMapper.mapToItemDto(updatedItem);
     }
 
     @Override
@@ -92,39 +94,28 @@ public class InMemoryItemStorageImpl implements ItemStorage {
 
     @Override
     public List<ItemDto> findAllItems(User user) {
-        ArrayList<ItemDto> listOfItems = new ArrayList<>();
-        for (Item item : items.values()) {
-            if (item.getOwner().getId() == user.getId()) {
-                ItemDto itemDto = itemMapper.mapToItemDto(item);
-                listOfItems.add(itemDto);
-            }
-        }
-        return listOfItems;
+        return items.values().stream()
+                .filter(item -> (item.getOwner().getId() == user.getId()))
+                .map(itemMapper::mapToItemDto)
+                .collect(Collectors.toList());
     }
 
     @Override
     public List<ItemDto> findItemsBaseOnRequest(String text) {
-        ArrayList<ItemDto> listOfItems = new ArrayList<>();
-        for (Item item : items.values()) {
-            String nameInLowerCase = item.getName().toLowerCase();
-            String descriptionInLowerCase = item.getDescription().toLowerCase();
-            if (item.isAvailable() &&
-                    (nameInLowerCase.contains(text) || descriptionInLowerCase.contains(text))) {
-                ItemDto itemDto = itemMapper.mapToItemDto(item);
-                listOfItems.add(itemDto);
-            }
-        }
-        return listOfItems;
+        return items.values().stream()
+                .filter(item -> (item.getName().toLowerCase().contains(text)
+                        || item.getDescription().toLowerCase().contains(text)) && item.isAvailable())
+                .map(itemMapper::mapToItemDto)
+                .collect(Collectors.toList());
     }
 
     @Override
     public User findItemOwner(Item item) {
-        User user = null;
-        for (Integer itemId : items.keySet()) {
-            if (itemId == item.getId()) {
-                user = items.get(itemId).getOwner();
-            }
+        User user = items.get(item.getId()).getOwner();
+        if (user != null) {
+            return user;
+        } else {
+            return null;
         }
-        return user;
     }
 }
