@@ -1,17 +1,14 @@
-package ru.practicum.shareit.item.dto;
+package ru.practicum.shareit.user.model;
 
 import lombok.*;
-
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(of = "id")
-@Builder
-public class ItemDto {
+public class User {
     private int id;
     private String name;
-    private String description;
-    private boolean available;
+    private String email;
 }
