@@ -7,6 +7,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import ru.practicum.shareit.exceptions.InvalidEmailException;
 import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.user.service.UserServiceForDbImpl;
 import ru.practicum.shareit.user.service.UserServiceImpl;
 
 import java.util.List;
@@ -22,11 +23,11 @@ import static ru.practicum.shareit.utils.Validator.validateUser;
 
 class UserControllerTest {
     private MockMvc restMvc;
-    private UserServiceImpl userService;
+    private UserServiceForDbImpl userService;
 
     @BeforeEach
     public void setUp() {
-        userService = mock(UserServiceImpl.class);
+        userService = mock(UserServiceForDbImpl.class);
         UserController userController = new UserController(userService);
         this.restMvc = MockMvcBuilders.standaloneSetup(userController).build();
     }
