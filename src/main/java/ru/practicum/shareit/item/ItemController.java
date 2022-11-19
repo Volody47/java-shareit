@@ -27,19 +27,20 @@ public class ItemController {
     }
 
     @GetMapping
+    @RequestMapping(method = RequestMethod.GET)
     public List<ItemDto> findAll(@RequestHeader(value = "X-Sharer-User-Id") int ownerId) {
         User user = userService.getUser(ownerId);
         return itemService.findAllItems(user);
     }
 
-    @PostMapping
+    @RequestMapping(method = RequestMethod.POST)
     public ItemDto createItem(@RequestBody Item item,
                               @RequestHeader(value = "X-Sharer-User-Id") int ownerId) {
         User user = userService.getUser(ownerId);
         return itemService.createItem(item, user);
     }
 
-    @PatchMapping(value = "/{itemId}")
+    @RequestMapping(method = RequestMethod.PATCH, value = "/{itemId}")
     public ItemDto updateItem(@RequestBody Item item,
                            @RequestHeader(value = "X-Sharer-User-Id") int ownerId,
                            @PathVariable int itemId) {
@@ -48,21 +49,21 @@ public class ItemController {
         return itemService.updateItem(item, user);
     }
 
-    @GetMapping(value = "/{itemId}")
+    @RequestMapping(method = RequestMethod.GET, value = "/{itemId}")
     public ItemDto getItem(@RequestHeader(value = "X-Sharer-User-Id") int ownerId,
                         @PathVariable int itemId) {
         User user = userService.getUser(ownerId);
         return itemService.getItem(itemId, user);
     }
 
-    @GetMapping(value = "/search")
+    @RequestMapping(method = RequestMethod.GET, value = "/search")
     public List<ItemDto> findItemsBaseOnRequest(@RequestHeader(value = "X-Sharer-User-Id") int ownerId,
                         @RequestParam(value = "text", required = false) String text) {
         User user = userService.getUser(ownerId);
         return itemService.findItemsBaseOnRequest(text);
     }
 
-    @DeleteMapping(value = "/{itemId}")
+    @RequestMapping(method = RequestMethod.DELETE, value = "/{itemId}")
     public void removeItem(@RequestHeader(value = "X-Sharer-User-Id") int ownerId,
                            @PathVariable int itemId) {
         itemService.removeItem(itemId);
