@@ -2,6 +2,7 @@ package ru.practicum.shareit.user.repository;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.exceptions.DuplicateEmailException;
 import ru.practicum.shareit.user.model.User;
@@ -23,14 +24,13 @@ public class UserDbStorageImpl implements UserStorage {
     @Override
     public User createUser(User user) {
         Validator.validateUser(user);
-        if (findDuplicateEmail(user)) {
-            log.error("Email: '{}' is already taken.", user.getEmail());
+        try {
+            User userToDb = userStorage.save(user);
+            log.debug("New user created with id={}", userToDb.getId());
+            return userToDb;
+        } catch (DataIntegrityViolationException e) {
             throw new DuplicateEmailException("Email: " + user.getEmail() + " is already taken.");
         }
-        User userToDb = userStorage.save(user);
-        log.debug("New user created with id={}", userToDb.getId());
-        return userToDb;
-
     }
 
     @Override
