@@ -2,9 +2,14 @@ package ru.practicum.shareit.utils;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RequestBody;
+import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.exceptions.*;
+import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
+
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 
 @Slf4j
@@ -27,6 +32,17 @@ public class Validator {
         } else if (item.getDescription() == null || item.getDescription().isBlank()) {
             log.error("ItemDescription: '{}' can't be empty", item.getDescription());
             throw new InvalidItemDescriptionException("ItemDescription can't be empty.");
+        }
+    }
+
+    public static void validateBooking(@RequestBody Item item, @RequestBody Booking booking) {
+        if (!item.isAvailable()) {
+            log.error("Item: '{}' not available to book it", item.getName());
+            throw new ItemNotAvailableException("Item not available to book it.");
+        } else if (booking.getStart().isAfter(booking.getEnd())
+                || booking.getStart().isBefore(LocalDateTime.now())) {
+            log.error("booking startDate should be before endDate nad can't be in past");
+            throw new BookingStartDateException("booking startDate should be before endDate and can't be in past.");
         }
     }
 }
