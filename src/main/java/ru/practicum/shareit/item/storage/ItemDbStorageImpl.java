@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.exceptions.InvalidItemAvailabilityException;
-import ru.practicum.shareit.exceptions.ItemNotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
@@ -29,7 +28,7 @@ public class ItemDbStorageImpl implements ItemStorage {
 
     @Override
     public ItemDto createItem(Item item, User user) {
-        if (!item.isAvailable() && getItem(item.getId()) == null) {
+        if (!item.isAvailable() && getItemDto(item.getId()) == null) {
             log.error("Item Availability can't false or empty");
             throw new InvalidItemAvailabilityException("Field 'available' should be 'true' and can't be empty.");
         }
@@ -42,7 +41,7 @@ public class ItemDbStorageImpl implements ItemStorage {
 
     @Override
     public ItemDto updateItem(Item item, User user) {
-        ItemDto updatedItem = getItem(item.getId());
+        ItemDto updatedItem = getItemDto(item.getId());
         if (updatedItem != null) {
             if (item.getName() == null && item.getDescription() == null) {
                 item.setName(updatedItem.getName());
@@ -56,7 +55,7 @@ public class ItemDbStorageImpl implements ItemStorage {
             }
             Validator.validateItem(item);
             item.setOwner(user);
-            if (!item.isAvailable() && getItem(item.getId()) == null) {
+            if (!item.isAvailable() && getItemDto(item.getId()) == null) {
                 log.error("Item Availability can't false or empty");
                 throw new InvalidItemAvailabilityException("Field 'available' should be 'true' and can't be empty.");
             }
@@ -68,9 +67,15 @@ public class ItemDbStorageImpl implements ItemStorage {
     }
 
     @Override
-    public ItemDto getItem(int id) {
+    public ItemDto getItemDto(int id) {
         Optional<Item> item = itemStorage.findById(id);
         return itemMapper.mapToItemDto(item.orElse(null));
+    }
+
+    @Override
+    public Item getItem(int id) {
+        Optional<Item> item = itemStorage.findById(id);
+        return item.orElse(null);
     }
 
     @Override

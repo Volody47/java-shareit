@@ -40,8 +40,17 @@ public class ItemServiceForDbImpl implements ItemService {
     }
 
     @Override
-    public ItemDto getItem(int id, User user) {
-        ItemDto item = itemStorage.getItem(id);
+    public ItemDto getItemDto(int id, User user) {
+        ItemDto item = itemStorage.getItemDto(id);
+        if (item == null) {
+            throw new ItemNotFoundException("Item with id=" + id + " not found.");
+        }
+        return item;
+    }
+
+    @Override
+    public Item getItem(int id, User user) {
+        Item item = itemStorage.getItem(id);
         if (item == null) {
             throw new ItemNotFoundException("Item with id=" + id + " not found.");
         }
@@ -50,7 +59,7 @@ public class ItemServiceForDbImpl implements ItemService {
 
     @Override
     public void removeItem(Integer itemId) {
-        ItemDto item = itemStorage.getItem(itemId);
+        ItemDto item = itemStorage.getItemDto(itemId);
         if (item == null) {
             throw new ItemNotFoundException("Item with id=" + itemId + " not found.");
         }

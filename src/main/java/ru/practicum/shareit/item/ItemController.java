@@ -6,10 +6,8 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemServiceForDbImpl;
-import ru.practicum.shareit.item.service.ItemServiceImpl;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserServiceForDbImpl;
-import ru.practicum.shareit.user.service.UserServiceImpl;
 
 import java.util.List;
 
@@ -55,7 +53,7 @@ public class ItemController {
     public ItemDto getItem(@RequestHeader(value = "X-Sharer-User-Id") int ownerId,
                         @PathVariable int itemId) {
         User user = userService.getUser(ownerId);
-        return itemService.getItem(itemId, user);
+        return itemService.getItemDto(itemId, user);
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/search")

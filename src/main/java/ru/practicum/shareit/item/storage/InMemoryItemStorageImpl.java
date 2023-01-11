@@ -33,7 +33,7 @@ public class InMemoryItemStorageImpl implements ItemStorage {
 
     @Override
     public ItemDto createItem(Item item, User user) {
-        if (!item.isAvailable() && getItem(item.getId()) == null) {
+        if (!item.isAvailable() && getItemDto(item.getId()) == null) {
             log.error("Item Availability can't false or empty");
             throw new InvalidItemAvailabilityException("Field 'available' should be 'true' and can't be empty.");
         }
@@ -61,7 +61,7 @@ public class InMemoryItemStorageImpl implements ItemStorage {
             }
             Validator.validateItem(item);
             item.setOwner(user);
-            if (!item.isAvailable() && getItem(item.getId()) == null) {
+            if (!item.isAvailable() && getItemDto(item.getId()) == null) {
                 log.error("Item Availability can't false or empty");
                 throw new InvalidItemAvailabilityException("Field 'available' should be 'true' and can't be empty.");
             }
@@ -73,10 +73,20 @@ public class InMemoryItemStorageImpl implements ItemStorage {
     }
 
     @Override
-    public ItemDto getItem(int id) {
+    public ItemDto getItemDto(int id) {
         Item item = items.get(id);
         if (item != null) {
             return itemMapper.mapToItemDto(item);
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public Item getItem(int id) {
+        Item item = items.get(id);
+        if (item != null) {
+            return item;
         } else {
             return null;
         }

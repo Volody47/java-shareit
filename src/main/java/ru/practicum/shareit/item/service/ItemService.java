@@ -12,7 +12,9 @@ public interface ItemService {
 
     ItemDto updateItem(Item item, User user);
 
-    ItemDto getItem(int id, User user);
+    ItemDto getItemDto(int id, User user);
+
+    Item getItem(int id, User user);
 
     void removeItem(Integer itemId);
 
