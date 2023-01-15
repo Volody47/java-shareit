@@ -1,12 +1,9 @@
 package ru.practicum.shareit.booking.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
-import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
-import java.sql.Timestamp;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -16,13 +13,15 @@ import java.time.format.DateTimeFormatter;
 @AllArgsConstructor
 @EqualsAndHashCode(of = "id")
 @Builder
-public class BookingDto {
+public class BookingForItemDto {
     private int id;
-    private String status;
+
+    @JsonIgnore
+    private User booker;
+
+    private int bookerId;
     private LocalDateTime start;
     private LocalDateTime end;
-    private User booker;
-    private ItemDto item;
 
     public String getStart() {
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
@@ -33,4 +32,9 @@ public class BookingDto {
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
         return dateTimeFormatter.format(end);
     }
+
+    public int getBookerId() {
+        return booker.getId();
+    }
+
 }
