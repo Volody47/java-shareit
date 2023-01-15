@@ -3,23 +3,36 @@ package ru.practicum.shareit.item.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.booking.mapper.BookingMapper;
+import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exceptions.ItemNotFoundException;
 import ru.practicum.shareit.exceptions.OwnerNotFoundForItemException;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.storage.ItemDbStorageImpl;
 import ru.practicum.shareit.user.model.User;
 
+import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
 public class ItemServiceForDbImpl implements ItemService {
     private final ItemDbStorageImpl itemStorage;
+    private final BookingRepository bookingRepository;
+    private final ItemMapper itemMapper;
+    private final BookingMapper bookingMapper;
 
     @Autowired
-    public ItemServiceForDbImpl(ItemDbStorageImpl itemStorage) {
+    public ItemServiceForDbImpl(ItemDbStorageImpl itemStorage, BookingRepository bookingRepository, ItemMapper itemMapper, BookingMapper bookingMapper) {
         this.itemStorage = itemStorage;
+        this.bookingRepository = bookingRepository;
+        this.itemMapper = itemMapper;
+        this.bookingMapper = bookingMapper;
     }
 
     @Override
@@ -45,7 +58,27 @@ public class ItemServiceForDbImpl implements ItemService {
         if (item == null) {
             throw new ItemNotFoundException("Item with id=" + id + " not found.");
         }
-        return item;
+        if (!user.equals(item.getOwner())) {
+            return item;
+        } else {
+            List<Booking> bookingList = bookingRepository.getBookingsByItem(itemMapper.mapToItem(item));
+            List<Booking> bookingInPast = bookingList.stream()
+                    .filter(booking -> (booking.getStatus().equals("APPROVED")))
+                    .sorted(Comparator.comparing(Booking::getEnd, Comparator.naturalOrder()))
+                    .collect(Collectors.toList());
+            List<Booking> bookingInFuture = bookingList.stream()
+                    .filter(booking -> (booking.getStatus().equals("APPROVED")))
+                    .filter(booking -> (booking.getStart().isAfter(LocalDateTime.now())))
+                    .sorted(Comparator.comparing(Booking::getStart, Comparator.reverseOrder()))
+                    .collect(Collectors.toList());
+            if (bookingInPast.size() != 0) {
+                item.setLastBooking(bookingMapper.mapToBookingForItemDto(bookingInPast.get(0)));
+            }
+            if (bookingInFuture.size() != 0) {
+                item.setNextBooking(bookingMapper.mapToBookingForItemDto(bookingInFuture.get(0)));
+            }
+            return item;
+        }
     }
 
     @Override
@@ -70,7 +103,27 @@ public class ItemServiceForDbImpl implements ItemService {
     @Override
     public List<ItemDto> findAllItems(User user) {
         log.debug("Items quantity: {}", itemStorage.findAllItems(user).size());
-        return itemStorage.findAllItems(user);
+        List<ItemDto> allItems = itemStorage.findAllItems(user);
+        for (ItemDto item : allItems) {
+            List<Booking> bookingList = bookingRepository.getBookingsByItem(itemMapper.mapToItem(item));
+            List<Booking> bookingInPast = bookingList.stream()
+                    .filter(booking -> (booking.getStatus().equals("APPROVED")))
+                    .sorted(Comparator.comparing(Booking::getEnd, Comparator.naturalOrder()))
+                    .collect(Collectors.toList());
+            List<Booking> bookingInFuture = bookingList.stream()
+                    .filter(booking -> (booking.getStatus().equals("APPROVED")))
+                    .filter(booking -> (booking.getStart().isAfter(LocalDateTime.now())))
+                    .sorted(Comparator.comparing(Booking::getStart, Comparator.reverseOrder()))
+                    .collect(Collectors.toList());
+            if (bookingInPast.size() != 0) {
+                item.setLastBooking(bookingMapper.mapToBookingForItemDto(bookingInPast.get(0)));
+            }
+            if (bookingInFuture.size() != 0) {
+                item.setNextBooking(bookingMapper.mapToBookingForItemDto(bookingInFuture.get(0)));
+            }
+        }
+        return allItems;
+
     }
 
     @Override

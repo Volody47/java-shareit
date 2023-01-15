@@ -3,6 +3,7 @@ package ru.practicum.shareit.item.storage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.exceptions.InvalidItemAvailabilityException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.mapper.ItemMapper;
@@ -10,6 +11,7 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.utils.Validator;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -88,6 +90,7 @@ public class ItemDbStorageImpl implements ItemStorage {
     public List<ItemDto> findAllItems(User user) {
         return itemStorage.findAll().stream()
                 .filter(item -> (item.getOwner().getId() == user.getId()))
+                .sorted(Comparator.comparing(Item::getId, Comparator.naturalOrder()))
                 .map(itemMapper::mapToItemDto)
                 .collect(Collectors.toList());
     }
