@@ -10,12 +10,12 @@ import java.net.UnknownHostException;
 @Slf4j
 public class AppConfig {
 
-    protected static String INSTANCE_ID = null;
+    //protected static String INSTANCE_ID = null;
 
 
     static {
         try {
-            INSTANCE_ID = InetAddress.getLocalHost().getHostName();
+            String INSTANCE_ID = InetAddress.getLocalHost().getHostName();
         } catch (UnknownHostException e) {
             log.warn("Unable to get host name", e);
         }
