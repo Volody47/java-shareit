@@ -5,7 +5,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exceptions.ItemNotFoundException;
 import ru.practicum.shareit.exceptions.OwnerNotFoundForItemException;
+import ru.practicum.shareit.item.dto.CommentForItemDto;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.storage.InMemoryItemStorageImpl;
 import ru.practicum.shareit.user.model.User;
@@ -82,6 +84,11 @@ public class ItemServiceImpl implements ItemService {
         String textInLowerCase = text.toLowerCase();
 
         return itemStorage.findItemsBaseOnRequest(textInLowerCase);
+    }
+
+    @Override
+    public CommentForItemDto createComment(Comment comment, User user, ItemDto itemDto) {
+        return null;
     }
 
 

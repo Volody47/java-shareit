@@ -6,11 +6,17 @@ import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
+import ru.practicum.shareit.exceptions.CommentCreationException;
 import ru.practicum.shareit.exceptions.ItemNotFoundException;
 import ru.practicum.shareit.exceptions.OwnerNotFoundForItemException;
+import ru.practicum.shareit.exceptions.UserAccessException;
+import ru.practicum.shareit.item.dto.CommentForItemDto;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.mapper.CommentMapper;
 import ru.practicum.shareit.item.mapper.ItemMapper;
+import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.storage.CommentRepository;
 import ru.practicum.shareit.item.storage.ItemDbStorageImpl;
 import ru.practicum.shareit.user.model.User;
 
@@ -24,15 +30,20 @@ import java.util.stream.Collectors;
 public class ItemServiceForDbImpl implements ItemService {
     private final ItemDbStorageImpl itemStorage;
     private final BookingRepository bookingRepository;
+    private final CommentRepository commentRepository;
     private final ItemMapper itemMapper;
     private final BookingMapper bookingMapper;
+    private final CommentMapper commentMapper;
+
 
     @Autowired
-    public ItemServiceForDbImpl(ItemDbStorageImpl itemStorage, BookingRepository bookingRepository, ItemMapper itemMapper, BookingMapper bookingMapper) {
+    public ItemServiceForDbImpl(ItemDbStorageImpl itemStorage, BookingRepository bookingRepository, CommentRepository commentRepository, ItemMapper itemMapper, BookingMapper bookingMapper, CommentMapper commentMapper) {
         this.itemStorage = itemStorage;
         this.bookingRepository = bookingRepository;
+        this.commentRepository = commentRepository;
         this.itemMapper = itemMapper;
         this.bookingMapper = bookingMapper;
+        this.commentMapper = commentMapper;
     }
 
     @Override
@@ -58,6 +69,8 @@ public class ItemServiceForDbImpl implements ItemService {
         if (item == null) {
             throw new ItemNotFoundException("Item with id=" + id + " not found.");
         }
+        List<Comment> commentsList = commentRepository.getCommentsByItem(itemMapper.mapToItem(item));
+        item.setComments(commentMapper.mapToCommentsForItemDto(commentsList));
         if (!user.equals(item.getOwner())) {
             return item;
         } else {
@@ -135,5 +148,28 @@ public class ItemServiceForDbImpl implements ItemService {
         String textInLowerCase = text.toLowerCase();
 
         return itemStorage.findItemsBaseOnRequest(textInLowerCase);
+    }
+
+    @Override
+    public CommentForItemDto createComment(Comment comment, User user, ItemDto itemDto) {
+        List<Booking> bookingList = bookingRepository.getBookingsByItem(itemMapper.mapToItem(itemDto));
+        List<Booking> userCanCreateComment = bookingList.stream()
+                .filter(booking -> (booking.getBooker().equals(user)))
+                .filter(booking -> (booking.getStatus().equals("APPROVED")))
+                .filter(booking -> (booking.getStart().isBefore(LocalDateTime.now())
+                        && booking.getEnd().isBefore(LocalDateTime.now())))
+                .collect(Collectors.toList());
+        if (userCanCreateComment.size() == 0) {
+            throw new CommentCreationException("User with id=" + user.getId() + " can't create comment.");
+        } else if (comment.getText().equals("")) {
+            throw new CommentCreationException("User can't create empty comment.");
+        } else {
+            comment.setAuthor(user);
+            comment.setItem(itemMapper.mapToItem(itemDto));
+            comment.setCreated(LocalDateTime.now());
+            commentRepository.save(comment);
+            return commentMapper.mapToCommentForItemDto(comment);
+
+        }
     }
 }
