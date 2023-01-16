@@ -6,8 +6,6 @@ import ru.practicum.shareit.booking.dto.BookingBodyRequest;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.service.BookingServiceForDbImpl;
-import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemServiceForDbImpl;
 import ru.practicum.shareit.user.model.User;
@@ -21,29 +19,24 @@ public class BookingController {
     private final ItemServiceForDbImpl itemService;
     private final UserServiceForDbImpl userService;
     private final BookingServiceForDbImpl bookingService;
-    private final ItemMapper itemMapper;
 
     @Autowired
     public BookingController(ItemServiceForDbImpl itemService, UserServiceForDbImpl userService,
-                             BookingServiceForDbImpl bookingService, ItemMapper itemMapper) {
+                             BookingServiceForDbImpl bookingService) {
         this.itemService = itemService;
         this.userService = userService;
         this.bookingService = bookingService;
-        this.itemMapper = itemMapper;
     }
 
     @RequestMapping(method = RequestMethod.POST)
     public BookingDto createBooking(@RequestBody BookingBodyRequest bookingBodyRequest,
                                     @RequestHeader(value = "X-Sharer-User-Id") int ownerId) {
         User user = userService.getUser(ownerId);
-        //ItemDto itemDto = itemService.getItemDto(bookingBodyRequest.getItemId(), user);
         Item item = itemService.getItem(bookingBodyRequest.getItemId(), user);
         Booking booking = new Booking();
-        //booking.setItem(itemMapper.mapToItem(itemDto));
         booking.setItem(item);
         booking.setStart(bookingBodyRequest.getStart());
         booking.setEnd(bookingBodyRequest.getEnd());
-        //return bookingService.createBooking(booking, user, itemDto);
         return bookingService.createBooking(booking, user, item);
     }
 
@@ -77,8 +70,4 @@ public class BookingController {
         User user = userService.getUser(ownerId);
         return bookingService.getAllBookingByOwner(user, stateType);
     }
-
-
-
-
 }

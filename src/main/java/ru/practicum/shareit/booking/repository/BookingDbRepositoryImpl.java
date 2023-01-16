@@ -2,24 +2,17 @@ package ru.practicum.shareit.booking.repository;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.StateType;
 import ru.practicum.shareit.exceptions.BookingStatusException;
-import ru.practicum.shareit.exceptions.DuplicateEmailException;
 import ru.practicum.shareit.exceptions.UnsupportedStateException;
-import ru.practicum.shareit.exceptions.UserAccessException;
-import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
-import java.text.DateFormat;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -128,8 +121,8 @@ public class BookingDbRepositoryImpl implements BookingStorage {
             } else if (StateType.valueOf(stateType).equals(StateType.CURRENT)) {
                 allBookings = bookingRepository.findAll().stream()
                         .filter(booking -> (booking.getBooker().equals(user)))
-                        .filter(booking -> (booking.getStart().isEqual(LocalDateTime.now())
-                                && booking.getEnd().isEqual(LocalDateTime.now())))
+                        .filter(booking -> (booking.getStart().isBefore(LocalDateTime.now())
+                                && booking.getEnd().isAfter(LocalDateTime.now())))
                         .map(bookingMapper::mapToBookingDto)
                         .collect(Collectors.toList());
             }
@@ -179,8 +172,8 @@ public class BookingDbRepositoryImpl implements BookingStorage {
             } else if (StateType.valueOf(stateType).equals(StateType.CURRENT)) {
                 allBookings = bookingRepository.findAll().stream()
                         .filter(booking -> (booking.getItem().getOwner().equals(user)))
-                        .filter(booking -> (booking.getStart().isEqual(LocalDateTime.now())
-                                && booking.getEnd().isEqual(LocalDateTime.now())))
+                        .filter(booking -> (booking.getStart().isBefore(LocalDateTime.now())
+                                && booking.getEnd().isAfter(LocalDateTime.now())))
                         .map(bookingMapper::mapToBookingDto)
                         .collect(Collectors.toList());
             }
