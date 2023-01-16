@@ -52,6 +52,7 @@ public class SwaggerConfig {
                 .version(AppConfig.INSTANCE_ID)
                 .build();
     }
+
     @GetMapping(value = "/swagger-ui.html")
     public ModelAndView redirectLegacyUrl() {
         return new ModelAndView(REDIRECT_SWAGGER_UI_HTML);

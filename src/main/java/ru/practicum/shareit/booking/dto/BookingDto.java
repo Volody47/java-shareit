@@ -2,11 +2,8 @@ package ru.practicum.shareit.booking.dto;
 
 import lombok.*;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
-import java.sql.Timestamp;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
