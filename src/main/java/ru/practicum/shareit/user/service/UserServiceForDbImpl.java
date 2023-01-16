@@ -1,14 +1,11 @@
 package ru.practicum.shareit.user.service;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exceptions.UserNotFoundException;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserDbStorageImpl;
-import ru.practicum.shareit.user.repository.UserRepository;
-import ru.practicum.shareit.utils.Validator;
 
 import java.util.List;
 

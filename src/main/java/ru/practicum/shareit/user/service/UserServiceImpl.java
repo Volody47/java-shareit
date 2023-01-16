@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exceptions.UserNotFoundException;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.InMemoryUserStorageImpl;
-import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.util.List;
 

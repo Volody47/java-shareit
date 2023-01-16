@@ -9,7 +9,6 @@ import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exceptions.CommentCreationException;
 import ru.practicum.shareit.exceptions.ItemNotFoundException;
 import ru.practicum.shareit.exceptions.OwnerNotFoundForItemException;
-import ru.practicum.shareit.exceptions.UserAccessException;
 import ru.practicum.shareit.item.dto.CommentForItemDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.mapper.CommentMapper;

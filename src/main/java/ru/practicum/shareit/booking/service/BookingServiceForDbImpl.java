@@ -25,7 +25,7 @@ public class BookingServiceForDbImpl implements BookingService {
     @Override
     public BookingDto createBooking(Booking booking, User user, Item item) {
         if (user.getId() == booking.getItem().getOwner().getId()) {
-            throw new UserAccessException("User with id=" + user.getId() + " is owner of " + item.getName() +".");
+            throw new UserAccessException("User with id=" + user.getId() + " is owner of " + item.getName() + ".");
         }
         return bookingRepository.createBooking(booking, user, item);
     }
