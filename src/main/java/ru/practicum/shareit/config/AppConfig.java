@@ -12,6 +12,7 @@ public class AppConfig {
 
     protected static String INSTANCE_ID = null;
 
+
     static {
         try {
             INSTANCE_ID = InetAddress.getLocalHost().getHostName();
