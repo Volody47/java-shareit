@@ -49,7 +49,7 @@ public class SwaggerConfig {
         return new ApiInfoBuilder()
                 .title(name)
                 .description(description)
-//                .version(AppConfig.INSTANCE_ID)
+                .version(AppConfig.INSTANCE_ID)
                 .build();
     }
 
