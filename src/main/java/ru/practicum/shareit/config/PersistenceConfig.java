@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 
 @Configuration
-@EnableJpaRepositories(basePackages = "ru.practicum")
+@EnableJpaRepositories(basePackages = "ru.practicum.shareit")
 public class PersistenceConfig {
 
 }
