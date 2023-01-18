@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS bookings
       end_date TIMESTAMP NOT NULL,
       booking_status VARCHAR(300) NOT NULL,
       CONSTRAINT fk_item FOREIGN KEY (item_id) REFERENCES items (item_id) ON UPDATE CASCADE,
-      CONSTRAINT fk_item_owner FOREIGN KEY (booker_id) REFERENCES users (user_id) ON UPDATE CASCADE
+      CONSTRAINT fk_item_booker FOREIGN KEY (booker_id) REFERENCES users (user_id) ON UPDATE CASCADE
   );
 
 CREATE TABLE IF NOT EXISTS comments
@@ -39,6 +39,6 @@ CREATE TABLE IF NOT EXISTS comments
     item_id BIGINT NOT NULL,
     author_id BIGINT NOT NULL,
     created_date TIMESTAMP NOT NULL,
-    CONSTRAINT fk_item FOREIGN KEY (item_id) REFERENCES items (item_id) ON UPDATE CASCADE,
+    CONSTRAINT fk_item_comments FOREIGN KEY (item_id) REFERENCES items (item_id) ON UPDATE CASCADE,
     CONSTRAINT fk_author_owner FOREIGN KEY (author_id) REFERENCES users (user_id) ON UPDATE CASCADE
 );
