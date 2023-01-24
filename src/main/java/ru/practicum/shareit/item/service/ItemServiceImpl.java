@@ -5,7 +5,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exceptions.ItemNotFoundException;
 import ru.practicum.shareit.exceptions.OwnerNotFoundForItemException;
+import ru.practicum.shareit.item.dto.CommentForItemDto;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.storage.InMemoryItemStorageImpl;
 import ru.practicum.shareit.user.model.User;
@@ -40,8 +42,17 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public ItemDto getItem(int id, User user) {
-        ItemDto item = itemStorage.getItem(id);
+    public ItemDto getItemDto(int id, User user) {
+        ItemDto item = itemStorage.getItemDto(id);
+        if (item == null) {
+            throw new ItemNotFoundException("Item with id=" + id + " not found.");
+        }
+        return item;
+    }
+
+    @Override
+    public Item getItem(int id, User user) {
+        Item item = itemStorage.getItem(id);
         if (item == null) {
             throw new ItemNotFoundException("Item with id=" + id + " not found.");
         }
@@ -50,7 +61,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public void removeItem(Integer itemId) {
-        ItemDto item = itemStorage.getItem(itemId);
+        ItemDto item = itemStorage.getItemDto(itemId);
         if (item == null) {
             throw new ItemNotFoundException("Item with id=" + itemId + " not found.");
         }
@@ -73,6 +84,11 @@ public class ItemServiceImpl implements ItemService {
         String textInLowerCase = text.toLowerCase();
 
         return itemStorage.findItemsBaseOnRequest(textInLowerCase);
+    }
+
+    @Override
+    public CommentForItemDto createComment(Comment comment, User user, ItemDto itemDto) {
+        return null;
     }
 
 

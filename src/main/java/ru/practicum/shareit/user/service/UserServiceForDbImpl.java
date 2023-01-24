@@ -5,17 +5,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exceptions.UserNotFoundException;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.repository.InMemoryUserStorageImpl;
+import ru.practicum.shareit.user.repository.UserDbStorageImpl;
 
 import java.util.List;
 
 @Service
 @Slf4j
-public class UserServiceImpl implements UserService {
-    private final InMemoryUserStorageImpl userStorage;
+public class UserServiceForDbImpl implements UserService {
+    private final UserDbStorageImpl userStorage;
+
 
     @Autowired
-    public UserServiceImpl(InMemoryUserStorageImpl userStorage) {
+    public UserServiceForDbImpl(UserDbStorageImpl userStorage) {
         this.userStorage = userStorage;
     }
 
@@ -56,4 +57,5 @@ public class UserServiceImpl implements UserService {
         log.debug("Users quantity: {}", userStorage.findAllUsers().size());
         return userStorage.findAllUsers();
     }
+
 }

@@ -12,7 +12,9 @@ public interface ItemStorage {
 
     ItemDto updateItem(Item item, User user);
 
-    ItemDto getItem(int id);
+    ItemDto getItemDto(int id);
+
+    Item getItem(int id);
 
     void removeItem(Integer itemId);
 

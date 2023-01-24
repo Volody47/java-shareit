@@ -10,25 +10,21 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.utils.Validator;
 
-import java.util.HashMap;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
-
 
 @Repository
 @Slf4j
-public class InMemoryItemStorageImpl implements ItemStorage {
-    private HashMap<Integer, Item> items = new HashMap<>();
-    private Integer identificator = 0;
+public class ItemDbStorageImpl implements ItemStorage {
+    private final ItemRepository itemStorage;
     private final ItemMapper itemMapper;
 
     @Autowired
-    public InMemoryItemStorageImpl(ItemMapper itemMapper) {
+    public ItemDbStorageImpl(ItemRepository itemStorage, ItemMapper itemMapper) {
+        this.itemStorage = itemStorage;
         this.itemMapper = itemMapper;
-    }
-
-    public int generateId() {
-        return ++identificator;
     }
 
     @Override
@@ -38,16 +34,15 @@ public class InMemoryItemStorageImpl implements ItemStorage {
             throw new InvalidItemAvailabilityException("Field 'available' should be 'true' and can't be empty.");
         }
         Validator.validateItem(item);
-        item.setId(generateId());
         item.setOwner(user);
-        items.put(item.getId(), item);
+        itemStorage.save(item);
         log.debug("New item created with id={}", item.getId());
         return itemMapper.mapToItemDto(item);
     }
 
     @Override
     public ItemDto updateItem(Item item, User user) {
-        Item updatedItem = items.get(item.getId());
+        ItemDto updatedItem = getItemDto(item.getId());
         if (updatedItem != null) {
             if (item.getName() == null && item.getDescription() == null) {
                 item.setName(updatedItem.getName());
@@ -65,7 +60,7 @@ public class InMemoryItemStorageImpl implements ItemStorage {
                 log.error("Item Availability can't false or empty");
                 throw new InvalidItemAvailabilityException("Field 'available' should be 'true' and can't be empty.");
             }
-            items.put(item.getId(), item);
+            itemStorage.save(item);
             return itemMapper.mapToItemDto(item);
         } else {
             return null;
@@ -74,41 +69,34 @@ public class InMemoryItemStorageImpl implements ItemStorage {
 
     @Override
     public ItemDto getItemDto(int id) {
-        Item item = items.get(id);
-        if (item != null) {
-            return itemMapper.mapToItemDto(item);
-        } else {
-            return null;
-        }
+        Optional<Item> item = itemStorage.findById(id);
+        return itemMapper.mapToItemDto(item.orElse(null));
     }
 
     @Override
     public Item getItem(int id) {
-        Item item = items.get(id);
-        if (item != null) {
-            return item;
-        } else {
-            return null;
-        }
+        Optional<Item> item = itemStorage.findById(id);
+        return item.orElse(null);
     }
 
     @Override
     public void removeItem(Integer itemId) {
-        items.remove(itemId);
-        log.debug("Item with id={} removed", itemId);
+        Optional<Item> item = itemStorage.findById(itemId);
+        itemStorage.delete(item.get());
     }
 
     @Override
     public List<ItemDto> findAllItems(User user) {
-        return items.values().stream()
+        return itemStorage.findAll().stream()
                 .filter(item -> (item.getOwner().getId() == user.getId()))
+                .sorted(Comparator.comparing(Item::getId, Comparator.naturalOrder()))
                 .map(itemMapper::mapToItemDto)
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<ItemDto> findItemsBaseOnRequest(String text) {
-        return items.values().stream()
+        return itemStorage.findAll().stream()
                 .filter(item -> (item.getName().toLowerCase().contains(text)
                         || item.getDescription().toLowerCase().contains(text)) && item.isAvailable())
                 .map(itemMapper::mapToItemDto)
@@ -117,7 +105,7 @@ public class InMemoryItemStorageImpl implements ItemStorage {
 
     @Override
     public User findItemOwner(Item item) {
-        User user = items.get(item.getId()).getOwner();
+        User user = itemStorage.findById(item.getId()).get().getOwner();
         if (user != null) {
             return user;
         } else {
